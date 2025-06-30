@@ -1,0 +1,76 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  user_id       Int           @id @default(autoincrement())
+  username      String?       @db.VarChar
+  email         String?       @db.VarChar
+  password_hash String?       @db.VarChar
+  birth_date    DateTime?     @db.Date
+  height        Decimal?      @db.Decimal
+  weight        Decimal?      @db.Decimal
+  created_at    DateTime?     @db.Date
+  Emotion_log   Emotion_log[]
+  Food_log      Food_log[]
+  Step_log      Step_log[]
+  Water_log     Water_log[]
+}
+
+model Emotion {
+  emotion_id  Int           @id @default(autoincrement())
+  emoji       String?       @db.VarChar
+  description String?       @db.VarChar
+  Emotion_log Emotion_log[]
+}
+
+model Emotion_log {
+  log_id     Int       @id
+  user_id    Int?
+  emotion_id Int?
+  note       String?   @db.VarChar
+  log_date   DateTime? @db.Date
+  User       User?     @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "Emotion_id_User")
+  Emotion    Emotion?  @relation(fields: [emotion_id], references: [emotion_id], onDelete: NoAction, onUpdate: NoAction, map: "Emotion_log_Emotion")
+}
+
+model Food_log {
+  log_id    Int        @id
+  user_id   Int?
+  menu_id   Int?
+  amount    Decimal?   @db.Decimal
+  log_date  DateTime?  @db.Date
+  log_time  DateTime?  @db.Timestamp(6)
+  Food_menu Food_menu? @relation(fields: [menu_id], references: [menu_id], onDelete: NoAction, onUpdate: NoAction, map: "Food_log_Food_menu_fk")
+  User      User?      @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "Food_log_User_fk")
+}
+
+model Food_menu {
+  menu_id           Int        @id
+  name              String?    @db.VarChar
+  description       String?    @db.VarChar
+  calories_per_gram Decimal?   @db.Decimal
+  unit              String?    @db.VarChar
+  Food_log          Food_log[]
+}
+
+model Step_log {
+  log_id     Int       @id
+  user_id    Int?
+  step_count Int?
+  log_date   DateTime? @db.Date
+  User       User?     @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "Step_log_User_fk")
+}
+
+model Water_log {
+  log_id    Int       @id
+  user_id   Int?
+  amount_ml Decimal?  @db.Decimal
+  log_date  DateTime? @db.Date
+  User      User?     @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "Water_log_User")
+}
